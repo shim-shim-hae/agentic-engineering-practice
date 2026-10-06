@@ -5,6 +5,8 @@ const { healthRouter } = require('./src/routes/health');
 const { webhooksRouter } = require('./src/routes/webhooks');
 const { tagsRouter, taskTagsRouter } = require('./src/routes/tags');
 const { commentsRouter } = require('./src/routes/comments');
+const { usersRouter } = require('./src/routes/users');
+const { projectsRouter } = require('./src/routes/projects');
 const { requestLogger } = require('./src/middleware/request-logger');
 const { errorHandler } = require('./src/middleware/error-handler');
 
@@ -19,6 +21,8 @@ app.get('/', (req, res) => {
 
 app.use('/health', healthRouter);
 app.use('/webhooks', webhooksRouter);
+app.use('/users', usersRouter);
+app.use('/projects', projectsRouter);
 app.use('/tags', tagsRouter);
 app.use('/tasks/:taskId/comments', commentsRouter);
 app.use('/tasks/:taskId/tags', taskTagsRouter);
