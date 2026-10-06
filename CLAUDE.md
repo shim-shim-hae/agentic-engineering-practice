@@ -25,14 +25,47 @@ npx jest tests/tasks.test.js -t "filters by"  # one test by name
 
 ## Architecture
 
-Layers: **routes call services, services call queries.** File names are kebab-case.
+Requests flow through four layers, and each layer calls only the one below it:
+
+```
+routes  →  services  →  queries  →  db (SQLite)
+```
+
+- **Routes** handle HTTP only.
+- **Services** hold validation and business logic.
+- **Queries** hold the SQL.
+- **The db** is the single shared `better-sqlite3` connection.
+
+File names are kebab-case, and each resource has a same-named file in every layer.
+
+### Folder structure
+
+```
+index.js                    app setup: mounts routers, errorHandler last, exports the app
+db/
+  seed.js                   creates the schema and sample data for local use
+src/
+  routes/                   health, webhooks, users, projects, tasks, comments, tags
+  services/                 health, webhooks, users, projects, tasks, comments, tags, email
+  db/
+    connection.js           opens the SQLite connection
+    schema.js               createSchema(db), shared by seed.js and the tests
+    queries/                users, projects, tasks, comments, tags
+  middleware/               auth, request-logger, error-handler
+  utils/                    constants, validation, http-error
+tests/                      users.test.js, projects.test.js, tasks.test.js
+```
+
+### Layers
 
 - **`index.js`** (repo root) builds the Express app, mounts every router, puts `errorHandler` last and exports the app. It only calls `listen` when run directly (`require.main === module`), so supertest can import the app. `GET /` is defined inline here.
-- **`src/routes/`** has one file per resource, each exporting a named router. Handlers parse params, call one service function and `next(err)` on failure. `tags.js` exports two routers: `tagsRouter` (`/tags`) and `taskTagsRouter` (`/tasks/:taskId/tags`). Nested routers (`comments.js`, `taskTagsRouter`) use `mergeParams: true`, and they are mounted before `/tasks` in `index.js`.
+- **`src/routes/`** has one file per resource, each exporting a named router. Handlers parse params, call one service function and call `next(err)` on failure. `tags.js` exports two routers: `tagsRouter` (`/tags`) and `taskTagsRouter` (`/tasks/:taskId/tags`). Nested routers (`comments.js`, `taskTagsRouter`) use `mergeParams: true` and are mounted before `/tasks` in `index.js`.
 - **`src/services/`** holds validation and business logic. Services throw `httpError(status, message)` (`src/utils/http-error.js`) and import only from `src/db/queries`. `users.js` also calls `email.js`, which is a stub that only logs.
-- **`src/db/queries/`** is the only place SQL lives (apart from `db/seed.js`). `src/db/connection.js` opens the single shared connection. It uses `:memory:` when `NODE_ENV=test`, otherwise `DB_PATH` or `taskr.db`, and enables WAL and `foreign_keys = ON`. `src/db/schema.js` exports `createSchema(db)`, used by both the seed script and the tests.
-- **`db/seed.js`** (repo root) creates the schema and sample data for local use.
-- **`src/middleware/`:** `auth.js` is a placeholder that checks the `x-api-key` header against `API_KEY` (default `dev-key`). It is applied only to `DELETE /users/:id` and `DELETE /projects/:id`. Other routes, including `DELETE /tasks/:id`, are unauthenticated. `error-handler.js` returns `{ error: message }` with `err.status || 500` and logs stacks only for 5xx. `request-logger.js` logs each request.
+- **`src/db/queries/`** is the only place SQL lives (apart from `db/seed.js`). Queries use the connection from `src/db/connection.js`, which uses `:memory:` when `NODE_ENV=test`, otherwise `DB_PATH` or `taskr.db`, and enables WAL and `foreign_keys = ON`.
+- **`src/middleware/`:**
+  - `auth.js` is a placeholder that checks the `x-api-key` header against `API_KEY` (default `dev-key`). It is applied only to `DELETE /users/:id` and `DELETE /projects/:id`. Other routes, including `DELETE /tasks/:id`, are unauthenticated.
+  - `error-handler.js` returns `{ error: message }` with `err.status || 500` and logs stacks only for 5xx.
+  - `request-logger.js` logs each request.
 - **`src/utils/`:** `constants.js` (`PORT`, `VALID_TASK_STATUSES`), `validation.js`, `http-error.js`.
 
 ## Gotchas
