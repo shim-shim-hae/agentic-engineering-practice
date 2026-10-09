@@ -1,3 +1,8 @@
+/**
+ * @description Creates all Taskr tables if they do not already exist.
+ * @param {Object} db - A better-sqlite3 database connection
+ * @returns {void} Nothing
+ */
 function createSchema(db) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (

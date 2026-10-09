@@ -4,11 +4,24 @@ const usersQueries = require('../db/queries/users');
 const { isNonEmptyString } = require('../utils/validation');
 const { httpError } = require('../utils/http-error');
 
+/**
+ * @description Lists the comments on a task.
+ * @param {number} taskId - ID of the task
+ * @returns {Object[]} Comments on the task, oldest first
+ */
 function listComments(taskId) {
   if (!tasksQueries.findById(taskId)) throw httpError(404, 'Task not found');
   return commentsQueries.findByTaskId(taskId);
 }
 
+/**
+ * @description Validates input and creates a comment on a task.
+ * @param {number} taskId - ID of the task
+ * @param {Object} data - Comment fields
+ * @param {number|string} data.user_id - ID of the comment author
+ * @param {string} data.body - Comment text
+ * @returns {Object} The newly created comment
+ */
 function createComment(taskId, { user_id, body }) {
   if (!tasksQueries.findById(taskId)) throw httpError(404, 'Task not found');
 
