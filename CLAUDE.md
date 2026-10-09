@@ -23,6 +23,14 @@ npx jest tests/tasks.test.js                  # one test file
 npx jest tests/tasks.test.js -t "filters by"  # one test by name
 ```
 
+## Verification
+
+After completing any significant change, run the `/verify-app` command **before committing**. It runs `npm test -- --runInBand` and fixes failures until the suite passes.
+
+- **Do not commit if any test fails.**
+- The tests use supertest to exercise the API endpoints directly against an in-memory SQLite database. A passing run confirms that the app works correctly for the endpoints they cover: users, projects and tasks.
+- Comments, tags, health and webhooks have no tests yet. For changes to those, a pass doesn't prove they work, so add tests or check them manually.
+
 ## Architecture
 
 Requests flow through four layers, and each layer calls only the one below it:
