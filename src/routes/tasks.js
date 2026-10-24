@@ -1,6 +1,10 @@
 const express = require('express');
 const tasksService = require('../services/tasks');
 
+/**
+ * @description Router for tasks, mounted at /tasks.
+ * @type {import('express').Router}
+ */
 const tasksRouter = express.Router();
 
 tasksRouter.get('/', (req, res, next) => {

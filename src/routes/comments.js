@@ -1,6 +1,10 @@
 const express = require('express');
 const commentsService = require('../services/comments');
 
+/**
+ * @description Router for a task's comments, mounted at /tasks/:taskId/comments.
+ * @type {import('express').Router}
+ */
 const commentsRouter = express.Router({ mergeParams: true });
 
 commentsRouter.get('/', (req, res, next) => {

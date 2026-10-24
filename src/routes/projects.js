@@ -2,6 +2,10 @@ const express = require('express');
 const projectsService = require('../services/projects');
 const { authenticate } = require('../middleware/auth');
 
+/**
+ * @description Router for projects, mounted at /projects.
+ * @type {import('express').Router}
+ */
 const projectsRouter = express.Router();
 
 projectsRouter.get('/', (req, res, next) => {

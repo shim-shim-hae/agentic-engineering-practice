@@ -1,7 +1,15 @@
 const express = require('express');
 const tagsService = require('../services/tags');
 
+/**
+ * @description Router for tags, mounted at /tags.
+ * @type {import('express').Router}
+ */
 const tagsRouter = express.Router();
+/**
+ * @description Router for applying and removing tags on a task, mounted at /tasks/:taskId/tags.
+ * @type {import('express').Router}
+ */
 const taskTagsRouter = express.Router({ mergeParams: true });
 
 tagsRouter.get('/', (req, res, next) => {
