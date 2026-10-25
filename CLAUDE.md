@@ -11,6 +11,12 @@ Taskr is a REST API for task management (users, projects, tasks, comments, tags)
 - Before adding or changing an API endpoint, read `.claude/context/api-conventions.md`. It covers where route files, services, queries and router registration go.
 - Before writing or changing tests, read `.claude/context/testing-standards.md`. It covers file naming, the test file skeleton, and required coverage per endpoint.
 
+## Active Plugins
+
+- The `my-standards` plugin is active, and its conventions apply to all code in this project.
+- Use the `my-standards:api-endpoints` skill when adding new routes.
+- Where the plugin's conventions differ from this repo's own (Architecture, Gotchas, context files), the repo's conventions win.
+
 ## Commands
 
 ```bash
